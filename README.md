@@ -36,6 +36,7 @@
   - [Delegation of custom logic to third party micro-services](#delegation-of-custom-logic-to-third-party-micro-services)
     - [Serverless - Firebase Cloud](#serverless---firebase-cloud)
     - [Event Triggers](#event-triggers)
+    - [Sending Email](#sending-email)
   - [Authentication in Hasura](#authentication-in-hasura)
   - [Database Migrations & Metadata](#database-migrations--metadata)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
@@ -386,11 +387,20 @@ We need to configure the event on hasura side and create the business logic for 
 - Name: `notify_about_comment`
 - Scheme: public | comment
 - Trigger Operation: [x] Create
-- URL: we need to give the firebase url but since we are running it locally we need to give the functions local url. To see that `http://localhost:5001/hasura-social/us-central1/notify-about-comment` change the `localhost` to `host.docker.internal`, `http://host.docker.internal:5001/hasura-social/us-central1/notify-about-comment`. Because the docker has its own localhost so we need to point to our localhost.
+- URL: we need to give the firebase url but since we are running it locally we need to give the functions local url. To see that `http://localhost:5001/hasura-social/us-central1/notifyAboutComment` change the `localhost` to `host.docker.internal`, `http://host.docker.internal:5001/hasura-social/us-central1/notify-about-comment`. Because the docker has its own localhost so we need to point to our localhost.
 
 ```
 $ cd functions
 $ npm run serve # copy the local url
+```
+
+### Sending Email
+
+> install `node-fetch` to fetch another endpoint and `nodemailer` to mail
+
+```sh
+$ cd functions
+$ npm i node-fetch nodemailer @types/node-fetch @types/nodemailer
 ```
 
 ## Authentication in Hasura
@@ -419,6 +429,7 @@ A list of tools used to develop this project
 - :burrito: [docker](https://prettier.io/) - for code formatting
 - :cactus: [typescript](https://github.com/aFarkas/lazysizes) - for lazy-loading of images
 - :chart_with_upwards_trend: [react](https://plotly.com/javascript/) - for interactive charts
+- [ethereal](http://ethereal.email/) - is a fake SMTP service, mostly aimed at Nodemailer users.
 
 ## License
 
