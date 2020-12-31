@@ -38,6 +38,9 @@
     - [Event Triggers](#event-triggers)
     - [Sending Email](#sending-email)
     - [Actions](#actions)
+    - [User Profile Action](#user-profile-action)
+    - [Relationship with Actions](#relationship-with-actions)
+    - [Remote Schema](#remote-schema)
   - [Authentication in Hasura](#authentication-in-hasura)
   - [Database Migrations & Metadata](#database-migrations--metadata)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
@@ -355,7 +358,7 @@ subscription GetPhotos {
 
 - Event triggers
 - Hasura Actions
-- Remove schemes
+- Remote schemas
 - Firebase Cloud Functions - to add business logic without a server
 
 ### Serverless - Firebase Cloud
@@ -386,7 +389,7 @@ We need to configure the event on hasura side and create the business logic for 
 
 - In the Hasura console which is running locally > Go to events tab > Click the create button
 - Name: `notify_about_comment`
-- Scheme: public | comment
+- Schema: public | comment
 - Trigger Operation: [x] Create
 - URL: we need to give the firebase url but since we are running it locally we need to give the functions local url. To see that `http://localhost:5001/hasura-social/us-central1/notifyAboutComment` change the `localhost` to `host.docker.internal`, `http://host.docker.internal:5001/hasura-social/us-central1/notifyAboutComment`. Because the docker has its own localhost so we need to point to our localhost.
 
@@ -420,7 +423,7 @@ type Mutation {
 }
 ```
 
-- New types defintions
+- New types definitions
 
 ```
 type User {
@@ -439,8 +442,69 @@ input SignupCredentials {
 - We created a `resolver` basically stating that we will provide you with email, password and displayname and do you own process but return the promise with id email and displayName.
 - Give the url handler as `http://host.docker.internal:5001/hasura-social/us-central1/createUser`
 - Save the Action
+- Now we can use this like any mutations
 
-Now we can use this like any mutations
+### User Profile Action
+
+> Go to the local hasura console > Actions tab > Create
+> Give the name for your action in `Action definition`
+> And give the URL
+
+```gql
+type Mutation {
+    # Define your action here
+    create_user (id: String!): User
+}
+```
+
+- New types definitions
+
+```
+type User {
+    id: String!
+    email: String!
+    displayName: String
+}
+
+```
+
+### Relationship with Actions
+
+What if we need to fetch the photos with the `user_profile` mutations ?
+- Go to Data `photos` > Modify > Columns > add a new column to link photos with user `user_id` `text` do the same with the `comments` table to associate ucomments with firebase user id.
+
+- Now go to `Actions` > `user_profile` > `Relationship` > `Add a realtionship`
+- This is an array relationship because a profile can have many photos
+- Name: `photos`
+- Schema: `public`
+- Reference Table: `photos`
+- From: `id` To: `user_id`
+- Repeat the same thing for comments
+
+### Remote Schema
+
+> Remote schema will stitch/merge multiple schema together and behave like one big graphql schema. This is useful when you have multiple microservice endpoint which are graphql endpoints themselves and you don't like to have multiple roundtrip to the graphql.
+
+- apollo-server-cloud-functions is a wrapper around apollo server to host on the cloud function and useful helpers for working with apollo on cloud.
+  
+```sh
+$ cd function
+$ cd npm i apollo-server-cloud-functions
+```
+
+- Create the `userProfile` endpoint, and run the functions again `npm run serve` 
+- Go to the userProfile endpoint and copy the url 
+
+- Now, switch to the Hasura console and go to remote schemas section
+- Name: `firebase_user_profile`
+- URL: paste the url you copied but change the `localhost` to `host.docker.internal`
+- Save
+- If you change the functions schema reload the remote schema to reflect those changes.
+
+- Go to the Data > `photos` table > Relationships > Add remote schema relationship
+- Name: `firebase_user_profile`
+- Select the remote schema
+- Configurations: `id` `from_columns` `user_id` so that `id` would be passed as an input.
 
 ## Authentication in Hasura
 
