@@ -37,6 +37,7 @@
     - [Serverless - Firebase Cloud](#serverless---firebase-cloud)
     - [Event Triggers](#event-triggers)
     - [Sending Email](#sending-email)
+    - [Actions](#actions)
   - [Authentication in Hasura](#authentication-in-hasura)
   - [Database Migrations & Metadata](#database-migrations--metadata)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
@@ -387,7 +388,7 @@ We need to configure the event on hasura side and create the business logic for 
 - Name: `notify_about_comment`
 - Scheme: public | comment
 - Trigger Operation: [x] Create
-- URL: we need to give the firebase url but since we are running it locally we need to give the functions local url. To see that `http://localhost:5001/hasura-social/us-central1/notifyAboutComment` change the `localhost` to `host.docker.internal`, `http://host.docker.internal:5001/hasura-social/us-central1/notify-about-comment`. Because the docker has its own localhost so we need to point to our localhost.
+- URL: we need to give the firebase url but since we are running it locally we need to give the functions local url. To see that `http://localhost:5001/hasura-social/us-central1/notifyAboutComment` change the `localhost` to `host.docker.internal`, `http://host.docker.internal:5001/hasura-social/us-central1/notifyAboutComment`. Because the docker has its own localhost so we need to point to our localhost.
 
 ```
 $ cd functions
@@ -402,6 +403,44 @@ $ npm run serve # copy the local url
 $ cd functions
 $ npm i node-fetch nodemailer @types/node-fetch @types/nodemailer
 ```
+
+### Actions
+
+> Used for connecting multiple data sources like REST APIs where you have multiple endpoints if its a microservices architecture. Then you need to have state management like redux, but hasura also has apollo client for state management now you have two sources of truth which you have to keep it in sync. We can have hasura as the front layer for those multiple api endpoints with the use of Actions.
+
+Lets say, we need to extend our graphql hasura with a new mutation called `createUser`. And we will use the Firebase Authentication for creating the users.
+
+> Go to the local hasura console > Actions tab > Create
+> Give the name for your action in `Action definition`
+
+```gql
+type Mutation {
+    # Define your action here
+    create_user (credentials: SignupCredentials): User
+}
+```
+
+- New types defintions
+
+```
+type User {
+    id: String!
+    email: String!
+    displayName: String
+}
+
+input SignupCredentials {
+    email:String!
+    password: String!
+    displayName: String!
+}
+```
+
+- We created a `resolver` basically stating that we will provide you with email, password and displayname and do you own process but return the promise with id email and displayName.
+- Give the url handler as `http://host.docker.internal:5001/hasura-social/us-central1/createUser`
+- Save the Action
+
+Now we can use this like any mutations
 
 ## Authentication in Hasura
 
