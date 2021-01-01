@@ -42,6 +42,8 @@
     - [Relationship with Actions](#relationship-with-actions)
     - [Remote Schema](#remote-schema)
   - [Authentication in Hasura](#authentication-in-hasura)
+    - [Secure Hasura Endpoints](#secure-hasura-endpoints)
+    - [JWT with Hasura](#jwt-with-hasura)
   - [Database Migrations & Metadata](#database-migrations--metadata)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
   - [TODO](#todo)
@@ -507,6 +509,35 @@ $ cd npm i apollo-server-cloud-functions
 - Configurations: `id` `from_columns` `user_id` so that `id` would be passed as an input.
 
 ## Authentication in Hasura
+
+### Secure Hasura Endpoints
+
+- First we need to secure hasura endpoint inside the container
+- Go to the compose file and set `HASURA_GRAPHQL_ADMIN_SECRET` and give some secret password
+- Now restart the compose file `docker-compose down/up` hasura would need the admin secret password to login to the console
+- Now, we will have an additional header with every request. `x-hasura-admin-secret` this takes precedence over JWT and other headers.
+
+### JWT with Hasura
+
+> Go to [jwt.io](https://jwt.io). For JWT to work with hasura, we need to give it an additional object in the payload and then give the secret key too.
+
+```
+{
+    ...
+    "https://hasura.io/jwt/claims": {
+        "x-hasura-allowed-roles": ["admin"],
+        "x-hasura-default-role : "admin"
+    }
+}
+```
+
+- This would generate the Encoded key just copy it and give it as a header in the hasura console
+
+```
+Key: Authorization | Value:Bearer <token>
+```
+
+- To activate the JWT key in hasura we need to config it in the compose file `HASURA_GRAPHQL_JWT_SECRET` and have a `json web key url`.
 
 ## Database Migrations & Metadata
 
