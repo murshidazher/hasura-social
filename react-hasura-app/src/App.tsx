@@ -1,6 +1,5 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
 import {
   ApolloClient,
   ApolloProvider,
@@ -8,34 +7,61 @@ import {
   GraphQLRequest,
   InMemoryCache,
 } from "@apollo/client";
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { SignUp } from './components/signup/SignUp';
-import { Container } from '@material-ui/core';
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { SignUp } from "./components/signup/SignUp";
+import { Container } from "@material-ui/core";
+import { SignIn } from "./components/signin/SignIn";
+import { AuthProvider, ProtectedRoute } from "./components/auth/AuthContext";
+import { UserProfile } from "./components/user-profile/UserProfile";
+import { setContext } from "@apollo/client/link/context";
+
+const httpLink = createHttpLink({
+  uri: "http://localhost:8080/v1/graphql",
+});
+
+const authLink = setContext(
+  ({ operationName }: GraphQLRequest, prevCtx: any) => {
+    const publicOperations = ["signin", "signup"]; // these operations dont need auth headers
+    if (
+      operationName &&
+      !publicOperations.includes(operationName.toLowerCase())
+    ) {
+      const token = localStorage.getItem("user_token");
+      return {
+        headers: {
+          ...prevCtx.headers,
+          Authorization: `Bearer ${token}`,
+        },
+      };
+    }
+  }
+);
 
 const client = new ApolloClient({
-  uri: "http://localhost:8080/v1/graphql",
   cache: new InMemoryCache(),
+  link: authLink.concat(httpLink),
 });
 
 function App() {
   return (
     <Router>
-      <ApolloProvider client={client}>
-        <Container maxWidth="md">
-          <Switch>
-            <Route path="/signup">
-              <SignUp />
-            </Route>
-            <Route path="/signin">
-              <SignIn />
-            </Route>
-            <Route path="/profile">
-              {() => <h1>profile</h1>}
-            </Route>
-          </Switch>
-        </Container>
-        <h1>Hello World!</h1>
-      </ApolloProvider>
+      <AuthProvider>
+        <ApolloProvider client={client}>
+          <Container maxWidth="md">
+            <Switch>
+              <Route path="/signup">
+                <SignUp />
+              </Route>
+              <Route path="/signin">
+                <SignIn />
+              </Route>
+              <ProtectedRoute path="/profile/:id">
+                <UserProfile />
+              </ProtectedRoute>
+            </Switch>
+          </Container>
+        </ApolloProvider>
+      </AuthProvider>
     </Router>
   );
 }

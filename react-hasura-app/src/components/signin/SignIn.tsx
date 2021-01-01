@@ -9,6 +9,7 @@ import {
   SignInMutationVariables,
   useSignInMutation,
 } from "../../generated/graphql";
+import { authContext } from "../auth/AuthContext";
 
 interface Props {}
 
@@ -26,6 +27,7 @@ const validationSchema = Yup.object().shape({
 
 export const SignIn = (props: Props) => {
   const [signin, { loading }] = useSignInMutation();
+  const context = useContext(authContext);
   const history = useHistory();
   const signinHandler = (values: SignInMutationVariables) => {
     signin({ variables: values })
