@@ -1,27 +1,14 @@
-import { gql, useMutation } from "@apollo/client";
 import { Box, Button, TextField, Typography } from "@material-ui/core";
-import { Formik, FormikValues } from "formik";
+import { Formik } from "formik";
 import React from "react";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
+import {
+  SignUpMutationVariables,
+  useSignUpMutation,
+} from "../../generated/graphql";
 
 interface Props {}
-
-const SIGNUP_MUTATION = gql`
-    mutation SignUp($email: String!, $password: String!, $displayName: String!) {
-        create_user(
-        credentials: {
-            email: $email
-            password: $password
-            displayName: $displayName
-        }
-        ) {
-        displayName
-        email
-        id
-        }
-  }
-`;
 
 const initialValues = {
   displayName: "",
@@ -37,9 +24,9 @@ const validationSchema = Yup.object().shape({
 });
 
 export const SignUp = (props: Props) => {
-  const [signup, { loading }] = useMutation(SIGNUP_MUTATION);
+  const [signup, { loading }] = useSignUpMutation();
   const history = useHistory();
-  const signupHandler = (values: FormikValues) => {
+  const signupHandler = (values: SignUpMutationVariables) => {
     signup({ variables: values })
       .then(({ errors }) => {
         if (errors) {

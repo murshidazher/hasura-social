@@ -1,20 +1,16 @@
-import { gql, MutationResult, useMutation } from "@apollo/client";
+import { MutationResult } from "@apollo/client";
 import { Box, Button, TextField, Typography } from "@material-ui/core";
-import { Formik, FormikValues } from "formik";
+import { Formik } from "formik";
 import React, { useContext } from "react";
 import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
+import {
+  SignInMutation,
+  SignInMutationVariables,
+  useSignInMutation,
+} from "../../generated/graphql";
 
 interface Props {}
-
-const SIGNIN_MUTATION = gql`
-mutation SignIn($email: String!, $password: String!) {
-    login(credentials: { email: $email, password: $password }) {
-      id
-      accessToken
-    }
-  }
-`;
 
 const initialValues = {
   email: "",
@@ -29,9 +25,9 @@ const validationSchema = Yup.object().shape({
 });
 
 export const SignIn = (props: Props) => {
-  const [signin, { loading }]  = useMutation(SIGNIN_MUTATION);
+  const [signin, { loading }] = useSignInMutation();
   const history = useHistory();
-  const signinHandler = (values: FormikValues) => {
+  const signinHandler = (values: SignInMutationVariables) => {
     signin({ variables: values })
       .then(({ errors, data }) => {
         return errors ? console.error(errors) : userLoggedInHandler(data);
@@ -39,9 +35,14 @@ export const SignIn = (props: Props) => {
       .catch(console.error);
   };
 
-  const userLoggedInHandler = (data: any) => {
+  const userLoggedInHandler = (
+    data: MutationResult<SignInMutation>["data"]
+  ) => {
+    if (data?.login) {
       localStorage.setItem("user_token", data.login.accessToken);
+      context?.setIsUserSignedIn(true);
       history.push(`/profile/${data.login.id}`);
+    }
   };
   return (
     <Box width={300} margin="30px auto">
