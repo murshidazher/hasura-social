@@ -47,6 +47,7 @@
     - [Using Firebase Auth](#using-firebase-auth)
     - [Role-Based Access](#role-based-access)
     - [Anonymous Role](#anonymous-role)
+    - [Webhook Authentication Mode](#webhook-authentication-mode)
   - [Database Migrations & Metadata](#database-migrations--metadata)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
   - [Links](#links)
@@ -78,7 +79,7 @@ Basic necessity for proceeding with the development
 - In Code editor, go to folder `functions` and clone and rename `config.example.json` to `config.json` and `serviceAccountKey.example.json` to `serviceAccountKey.json`;
 - Run `firebase open settings`. Copy WEB API KEY and paste it into config.json instead "YOUR_API_KEY"
 - On the settings page, go to "Service Accounts" tab and click "Generate new private key". Open generated file, copy its content and replace content of `serviceAccountKey.json` with what you just copied.
-- Go to the Storage page and copy your path to backet and in `config.json` replace value of "STORAGE_BACKET" with yours. HINT! It starts with: `gs://`.
+- Go to the Storage page and copy your path to backet and in `config.json` replace value of "STORAGE_BUCKET" with yours. HINT! It starts with: `gs://`.
 
 ## Developing
 
@@ -586,6 +587,14 @@ input Credentials {
 - Give select permission without any check and select all fields
 - Allow tole anonymous to make aggregation queries
 - We need to also tell hasura graphql about this user by adding the secret key `HASURA_GRAPHQL_UNAUTHORIZED_ROLE`.
+- Give permissions to actions too, for `login` and `create_user` for anonymous users.
+
+### Webhook Authentication Mode
+
+- Sometimes you might need to authenticate a user based on a custom header like `secret-header` with value `trust-me`
+- Hasura doesn't know how to handle it but it can delegate this request to another authority to handle. We can configure it to handle this request.
+- Comment the `HASURA_GRAPHQL_JWT_SECRET` and `HASURA_GRAPHQL_UNAUTHORIZED_ROLE` and uncomment the `HASURA_GRAPHQL_AUTH_HOOK`
+
 
 ## Database Migrations & Metadata
 
