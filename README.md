@@ -44,6 +44,9 @@
   - [Authentication in Hasura](#authentication-in-hasura)
     - [Secure Hasura Endpoints](#secure-hasura-endpoints)
     - [JWT with Hasura](#jwt-with-hasura)
+    - [Using Firebase Auth](#using-firebase-auth)
+    - [Role-Based Access](#role-based-access)
+    - [Anonymous Role](#anonymous-role)
   - [Database Migrations & Metadata](#database-migrations--metadata)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
   - [Links](#links)
@@ -528,6 +531,61 @@ Key: Authorization | Value:Bearer <token>
 ```
 
 - To activate the JWT key in hasura we need to config it in the compose file `HASURA_GRAPHQL_JWT_SECRET` and have a `json web key url`.
+
+### Using Firebase Auth
+
+- Create a new Action 
+
+```gql
+type Mutation {
+    # Define your action here
+    login (credentials: Credentials): LoginObject
+}
+```
+
+- New types definitions
+
+```
+type LoginObject {
+    accessToken: String!
+}
+
+input Credentials {
+    email:String!
+    password: String!
+}
+```
+
+- Add your firebase Web API key to `config.json`, can be found in the firebase console .
+- In the firebase console, enable email and password authentication.
+- Now, we can go to explorer mutation and run that mutation. But you wont be able to access because the secret differs in the hasura JWT.
+- To mitigate that, go to [hasura.io/jwt-config](https://hasura.io/jwt-config/), its a small util which helps to generate the key select the provider, and enter project id. Replace the secret from the docker-compose file, `HASURA_GRAPHQL_JWT_SECRET`
+
+### Role-Based Access
+
+- We will give role-based access to the user, go to the `Permissions` tab and create the `user` role.
+- Edit the insert and select without any check and columns selected as photo_url and description.
+- Then expand Column presets and select `user_id` from session varaibles and `X-Hasura-User-Id` 
+- Save
+- Same way give select permissions which is read operation.
+- Update would be with custom check because only the owner of the photo can update it meaning userid should match
+```
+{
+    user_id: {
+        _eq: X-Haura-User-id
+    }
+}
+```
+- Post update check should be the same with custom check as pre update.
+- Delete is similar to update with same custom check as post update and pre update
+- Do the same thing for comments, edit they can only edit the comment body
+
+### Anonymous Role
+
+- Create a new role in photos table named `anonymous`
+- Give select permission without any check and select all fields
+- Allow tole anonymous to make aggregation queries
+- We need to also tell hasura graphql about this user by adding the secret key `HASURA_GRAPHQL_UNAUTHORIZED_ROLE`.
 
 ## Database Migrations & Metadata
 
