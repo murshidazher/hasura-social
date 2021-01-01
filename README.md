@@ -356,9 +356,9 @@ subscription GetPhotos {
 
 > Sometimes we need to extend the hasura features like
 
-- Event triggers
-- Hasura Actions
-- Remote schemas
+- Event triggers - used for executing some logic after data was inserted, updated or removed from the database
+- Hasura Actions - used for data validations before insert to database or you need to delegate logic to some micro service which implements only `REST` interface. Can be used for fetching data from third party apis and then relate that to hasura tables.
+- Remote schemas - used for when you need to delegate logic to some microservice which implements `GraphQL` interface or you need to build reference from Hasura tables to some remote GraphQL server
 - Firebase Cloud Functions - to add business logic without a server
 
 ### Serverless - Firebase Cloud
