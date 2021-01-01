@@ -27,7 +27,10 @@ function App() {
               <SignUp />
             </Route>
             <Route path="/signin">
-              {() => <h1>Signin page</h1>}
+              <SignIn />
+            </Route>
+            <Route path="/profile">
+              {() => <h1>profile</h1>}
             </Route>
           </Switch>
         </Container>
