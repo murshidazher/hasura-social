@@ -1,4 +1,4 @@
-import { gql, MutationResult } from "@apollo/client";
+import { gql, MutationResult, useMutation } from "@apollo/client";
 import { Box, Button, TextField, Typography } from "@material-ui/core";
 import { Formik, FormikValues } from "formik";
 import React, { useContext } from "react";
@@ -39,7 +39,7 @@ export const SignIn = (props: Props) => {
       .catch(console.error);
   };
 
-  const userLoggedInHandler = (data: SigninResponse) => {
+  const userLoggedInHandler = (data: any) => {
       localStorage.setItem("user_token", data.login.accessToken);
       history.push(`/profile/${data.login.id}`);
   };
