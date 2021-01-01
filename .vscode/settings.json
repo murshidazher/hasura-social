@@ -1,0 +1,4 @@
+{
+    "eslint.enable": false,
+    "typescript.tsdk": "c:\\Users\\MurshidAzher\\coderoom\\hasura-social\\react-hasura-app\\node_modules\\typescript\\lib"
+}

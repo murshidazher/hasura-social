@@ -1,7 +1,7 @@
 # [hasura-social](https://github.com/murshidazher/hasura-social)
 > A social platform created using [Hasura GraphQL](https://hasura.io/)
 
-- A code-base for learning hands-on about hasura graphql. This is a part repo made for demonstration.
+- A code-base for learning hands-on about hasura graphql. This is a repo made for demonstration.
 
 ## Table of Contents
 
@@ -59,6 +59,8 @@
     - [Seed Migrations](#seed-migrations)
     - [How to rollback](#how-to-rollback)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
+  - [React](#react)
+    - [Generate Graphql Types](#generate-graphql-types)
   - [Links](#links)
   - [License](#license)
 
@@ -774,6 +776,35 @@ type UploadResult {
 
 Now, you can upload the base64 converted images.
 
+## React
+
+```sh
+$ npx create-react-app react-hasura-app --template typescript
+$ cd react-hasura-app
+$ rm -rf .git
+$ npm i @material-ui/core react-router-dom @apollo/client graphql
+$ npm i @types/graphql @types/react-router-dom -D
+$ npm i formik yup # for handling forms and validations
+$ npm i @types/yup -D
+```
+
+In the `App.tsx`, replace the Apollo client `uri` to the localhost uri.
+
+### Generate Graphql Types
+
+We automate the generation of graphql types using the [graphql code generator tool](https://graphql-code-generator.com/docs/getting-started/installation).
+
+```sh
+$ npm i -D @graphql-codegen/cli
+$ npx graphql-codegen init # give name as generate-types
+$ npm i
+# after adding the .grapql types, run generate types 
+$ npm run generate-types
+```
+
+Now, we will use all the values from the auto generated hooks.
+
+`Pick` is a typescript generic which allows to extract only the required types.
 
 ## Links
 
