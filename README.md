@@ -466,8 +466,7 @@ type User {
 ### Relationship with Actions
 
 What if we need to fetch the photos with the `user_profile` mutations ?
-- Go to Data `photos` > Modify > Columns > add a new column to link photos with user `user_id` `text` do the same with the `comments` table to associate ucomments with firebase user id.
-
+- Go to Data `photos` > Modify > Columns > add a new column to link photos with user `user_id` `text` do the same with the `comments` table to associate comments with firebase user id.
 - Now go to `Actions` > `user_profile` > `Relationship` > `Add a realtionship`
 - This is an array relationship because a profile can have many photos
 - Name: `photos`
@@ -489,13 +488,11 @@ $ cd npm i apollo-server-cloud-functions
 
 - Create the `userProfile` endpoint, and run the functions again `npm run serve` 
 - Go to the userProfile endpoint and copy the url 
-
 - Now, switch to the Hasura console and go to remote schemas section
 - Name: `firebase_user_profile`
 - URL: paste the url you copied but change the `localhost` to `host.docker.internal`
 - Save
 - If you change the functions schema reload the remote schema to reflect those changes.
-
 - Go to the Data > `photos` table > Relationships > Add remote schema relationship
 - Name: `firebase_user_profile`
 - Select the remote schema
