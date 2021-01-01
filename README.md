@@ -49,6 +49,7 @@
     - [Anonymous Role](#anonymous-role)
     - [Webhook Authentication Mode](#webhook-authentication-mode)
   - [Database Migrations & Metadata](#database-migrations--metadata)
+    - [Hasura CLI](#hasura-cli)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
   - [Links](#links)
   - [License](#license)
@@ -597,6 +598,26 @@ input Credentials {
 
 
 ## Database Migrations & Metadata
+
+> Migration is a way to restore a new hasura graphql instance to the current status.
+
+- Migrations & meta data are responsible for creating database snapshots. Migrations are responsible for postgres database schema and each migration is represented by `up.sql` and `down.sql` yaml files. `up` for upgrading and `down` for rollback.
+- Other than the database schema we have other things to track like permissions, relationships, event triggers, actions, remote schemas and more... these are covered by meta-data which is a bundle of yaml and graphql files under the `meta_data` folder.
+
+### Hasura CLI
+
+We can create and manage migrations using hasura cli. To install hasura cli [read this](https://hasura.io/docs/1.0/graphql/core/hasura-cli/install-hasura-cli.html#install-hasura-cli) documentation.
+
+```sh
+$ npm install --global hasura-cli
+$ hasura version
+```
+
+Now, in the root of the project we can run the hasura init command to 
+
+```sh
+$ hasura init # hasura-server
+```
 
 ## File uploading & Small Improvements
 
