@@ -46,8 +46,6 @@
     - [JWT with Hasura](#jwt-with-hasura)
   - [Database Migrations & Metadata](#database-migrations--metadata)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
-  - [TODO](#todo)
-  - [Keep in Mind](#keep-in-mind)
   - [Links](#links)
   - [License](#license)
 
@@ -55,11 +53,6 @@
 
 A quick introduction of the minimal setup you need to get up & running. Follow [this link](https://hasura.io/docs/1.0/graphql/core/hasura-cli/install-hasura-cli.html) to install hasura it on your OS.
 
-```shell
-packagemanager install awesome-project
-awesome-project start
-awesome-project "Do something!"  # prints "Nah."
-```
 
 ### Initial Configuration
 
@@ -120,7 +113,7 @@ And again you'd need to tell what the previous code actually does.
 
 ## Basic 
 
-- Basic information and initial setup
+> Basic information and initial setup
   
 ### What is Hasura?
 
@@ -543,15 +536,6 @@ Key: Authorization | Value:Bearer <token>
 
 ## File uploading & Small Improvements
 
-## TODO
-
-- [ ] Add table of contents
-
-
-## Keep in Mind
-
-- **Syntax** - syntax highlight isn't working as it's expected to work.
-- Plotly
 
 ## Links
 
