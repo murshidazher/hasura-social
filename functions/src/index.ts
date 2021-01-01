@@ -5,6 +5,16 @@ import { getProfileHandler } from './getProfile';
 import initApolloServer from "./remoteScheme";
 import { loginHandler } from './login';
 import { authHookHandler } from './authHook';
+import { uploadPhotoHandler } from './uploadPhoto';
+import { initializeApp, credential } from "firebase-admin";
+
+const serviceAccount = require("../serviceAccountKey.json");
+const { STORAGE_BUCKET } = require("../config.json");
+
+initializeApp({
+  credential: credential.cert(serviceAccount),
+  storageBucket: STORAGE_BUCKET
+});
 
 export const notifyAboutComment = functions.https.onRequest(
     notifyAboutCommentHandler
@@ -16,3 +26,4 @@ export const userProfile = functions.https.onRequest(
 );
 export const login = functions.https.onRequest(loginHandler);
 export const authHook = functions.https.onRequest(authHookHandler);
+export const uploadPhoto = functions.https.onRequest(uploadPhotoHandler);

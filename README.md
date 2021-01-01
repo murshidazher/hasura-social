@@ -50,6 +50,14 @@
     - [Webhook Authentication Mode](#webhook-authentication-mode)
   - [Database Migrations & Metadata](#database-migrations--metadata)
     - [Hasura CLI](#hasura-cli)
+    - [Initial Migration](#initial-migration)
+    - [Export Metadata](#export-metadata)
+    - [Check Migration Status](#check-migration-status)
+    - [Apply Metadata](#apply-metadata)
+    - [Keep Migration and Metadata in Sync](#keep-migration-and-metadata-in-sync)
+    - [Migration Squashing](#migration-squashing)
+    - [Seed Migrations](#seed-migrations)
+    - [How to rollback](#how-to-rollback)
   - [File uploading & Small Improvements](#file-uploading--small-improvements)
   - [Links](#links)
   - [License](#license)
@@ -550,6 +558,7 @@ type Mutation {
 ```
 type LoginObject {
     accessToken: String!
+    id: String!
 }
 
 input Credentials {
@@ -581,6 +590,7 @@ input Credentials {
 - Post update check should be the same with custom check as pre update.
 - Delete is similar to update with same custom check as post update and pre update
 - Do the same thing for comments, edit they can only edit the comment body
+- Allow `user-profile` action to role `user` too. 
 
 ### Anonymous Role
 
@@ -619,7 +629,150 @@ Now, in the root of the project we can run the hasura init command to
 $ hasura init # hasura-server
 ```
 
+### Initial Migration
+
+`--from-server` to create the initial migration from the current server instance, `--admin-secret` because our database is protected.
+
+```sh
+$ cd hasura-server
+$ hasura migrate create InitialMigration --from-server --endpoint http://localhost:8080 --admin-secret myadminsecretkey
+```
+
+Since this is too long we can configure this in the config.yaml file inside the hasura server folder.
+
+```sh
+$ hasura migrate create InitialMigration --from-server
+```
+
+### Export Metadata
+
+To export metadata since we have already have the endpoint and the admin secret
+
+```
+$ hasura metadata export
+```
+
+### Check Migration Status
+
+To check migration status, to check which status was applied to the database. 
+
+```
+$ hasura migrate status
+```
+
+To skip already created tables and files and execute migrations, we need to explicitly mention the migration version number
+
+```
+$ hasura migrate apply --skip-execution --version <version_number>
+```
+
+We can also run the migration on the cloud version of hasura example `https://alpaca-45.hasura.app` without the `graphql` slug.
+
+```
+$ hasura migrate apply --endpoint <cloud_hasura_app_url>
+```
+
+### Apply Metadata
+
+To check if the current metadata differs from the hasura instance like status for migration
+
+```
+$ hasura metadata diff
+```
+
+In order to apply, we just need to run
+
+```
+$ hasura metadata apply
+```
+
+We can also run the metadata on the cloud hasura instance example `https://alpaca-45.hasura.app` without the `graphql` slug. Change the `remote_schemas` url inside the meta data to the deployed functions endpoint url.
+
+```
+$ cd functions
+$ npm run deploy
+$ cd ../hasura-server
+$ hasura metadata apply --endpoint <cloud_hasura_app_url>
+```
+
+### Keep Migration and Metadata in Sync
+
+> Anything you do in this port will produce a new migration or metadata, this is extremely useful and creating migration. `HASURA_GRAPHQL_ENABLE_CONSOLE: "false"` so we always use the hasura-cli console.
+
+```sh
+$ cd hasura-server
+$ hasura console
+$ hasura console --console-port 1234 # to define our own port
+```
+
+### Migration Squashing
+
+How to merge multiple migrations into one migration so we can keep the intentions of each changes together. But after squash it wont be applied to the database so we need to manually apply it.
+
+```
+$ hasura migrate squash --name "feature is published" --from <version_of_migration_from_which_to_squash>
+$ hasura migrate status
+$ hasura migrate apply --skip-execution --version <version_number>
+```
+
+### Seed Migrations
+
+To restore data to the tables,
+
+```sh
+$ cd hasura-server
+$ hasura seeds create <migration_name> # if you need to manually type insert commands
+```
+
+We can also add the seed data from the hasura console.
+
+```sh
+# or to automatically generate the seeds from present data
+$ hasura seeds create <migration_name> --from-table <table_name> 
+$ hasura seeds create cities_feature --from-table cities
+# to apply the seeds
+$ hasura seeds apply
+```
+
+### How to rollback
+
+```sh
+$ hasura migrate status
+$ hasura migrate apply --goto <version_number>
+# to rollback only one version
+$ hasura migrate apply --version <version_number> --type down
+# to go back
+$ hasura migrate apply
+$ hasura seeds apply
+```
+
 ## File uploading & Small Improvements
+
+Create a New action
+
+```gql
+type Mutation {
+    # Define your action here
+    upload_photo (base64image: String!): UploadResult
+}
+```
+
+- New types definitions
+
+```
+type UploadResult {
+    url: String!
+}
+```
+
+- Handler `http://host.docker.internal:5.../uploadPhoto`
+- Save and grant permission to the `user`
+  
+- Then go to firebase console and settings > Service accounts > Generate new private key
+- Copy this file to `serviceAccountKey` file
+- For `STORAGE_BUCKET` key > Go to Firebase Console > Storage > Copy the key
+
+Now, you can upload the base64 converted images.
 
 
 ## Links

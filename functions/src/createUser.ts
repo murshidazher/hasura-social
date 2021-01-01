@@ -1,6 +1,5 @@
 import { Request, Response, logger } from "firebase-functions";
-import { initializeApp, auth } from "firebase-admin";
-initializeApp();
+import { auth } from "firebase-admin";
 
 export const createUserHandler = async (
   request: Request,
